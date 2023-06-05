@@ -9,27 +9,27 @@ public class ObfuscationAnalysis {
 
     private static final Set<String> javaKeywords = readJavaKeywords();
 
-    public boolean isIdentifierObfuscated(String identifier) {
+    public static boolean isIdentifierObfuscated(String identifier) {
         return !isHardcodedException(identifier) && (isJavaKeyword(identifier) ||
                                                     isShortSize(identifier) ||
                                                     containRepeatedConsonants(identifier) ||
                                                     containsSpecialCharacters(identifier));
     }
 
-    private boolean isJavaKeyword(String s) {
+    private static boolean isJavaKeyword(String s) {
         return javaKeywords.contains(s);
     }
 
-    private boolean isShortSize(String s) {
+    private static boolean isShortSize(String s) {
         return s.length() <= 2;
     }
 
-    private boolean isHardcodedException(String s) {
+    private static boolean isHardcodedException(String s) {
         Set<String> hardcodedExceptions = new HashSet<>(Arrays.asList("id", "io", "r"));
         return hardcodedExceptions.contains(s.toLowerCase());
     }
 
-    private boolean containRepeatedConsonants(String s) {
+    private static boolean containRepeatedConsonants(String s) {
         Set<Character> consonants = new HashSet<>(Arrays.asList('b', 'c', 'd', 'e', 'f', 'g', 'h', 'j', 'k', 'l', 'm', 'n', 'p', 'q', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z'));
         for (int i = 0; i < s.length() - 2; i++) {
             char c = s.charAt(i);
@@ -42,7 +42,7 @@ public class ObfuscationAnalysis {
         return false;
     }
 
-    private boolean containsSpecialCharacters(String s) {
+    private static boolean containsSpecialCharacters(String s) {
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             if (c == '$' || c > 0x7F || c == '_') {

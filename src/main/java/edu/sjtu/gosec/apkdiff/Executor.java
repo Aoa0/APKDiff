@@ -1,6 +1,9 @@
 package edu.sjtu.gosec.apkdiff;
 
 import edu.sjtu.gosec.apkdiff.analysis.ObfuscationAnalysis;
+import edu.sjtu.gosec.apkdiff.profile.AppProfile;
+import edu.sjtu.gosec.apkdiff.util.HierarchyNode;
+import edu.sjtu.gosec.apkdiff.util.HierarchyTree;
 import org.xmlpull.v1.XmlPullParserException;
 import soot.PackManager;
 import soot.Scene;
@@ -29,13 +32,15 @@ public class Executor {
     public void run() {
         setupSoot(source, androidJar);
         PackManager.v().runPacks();
+        HierarchyTree tree = new HierarchyTree();
         try (ProcessManifest manifest = new ProcessManifest(source)) {
-            for(SootClass clz : Scene.v().getApplicationClasses()) {
-                System.out.println(clz.getName());
-            }
+            AppProfile app = new AppProfile(Scene.v().getApplicationClasses());
+            app.PackageSqueezing();
+            app.hierarchyTree.show(app.hierarchyTree.root, 0);
         } catch (XmlPullParserException | IOException e) {
             throw new RuntimeException(e);
         }
+        tree.show(tree.root, 0);
     }
 
 

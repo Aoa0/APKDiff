@@ -1,22 +1,26 @@
 package edu.sjtu.gosec.apkdiff.util;
 
 import soot.SootClass;
-import soot.util.Chain;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class HierarchyNode extends Node<SootClass>{
-    public Chain<SootClass> Classes;
+    public ArrayList<SootClass> Classes;
     public HashMap<String, HierarchyNode> Child;
 
     public HierarchyNode() {
         super();
         Child = new HashMap<String, HierarchyNode>();
-        Classes = null;
+        Classes = new ArrayList<SootClass>();
     }
 
     public void addClass(SootClass clz) {
         Classes.add(clz);
+    }
+
+    public void addClass(ArrayList<SootClass> clzes) {
+        Classes.addAll(clzes);
     }
 
     public void addChild(String className, HierarchyNode child) {
@@ -34,12 +38,24 @@ public class HierarchyNode extends Node<SootClass>{
         return Classes.remove(clz);
     }
 
-    public Chain<SootClass> getClasses() {
+    public ArrayList<SootClass> getClasses() {
         return Classes;
     }
 
     public HierarchyNode getChild(String name) {
         return Child.get(name);
+    }
+
+    public boolean removeChild(String name) {
+        return removeChild(name, Child.get(name));
+    }
+
+    public boolean removeChild(String name, HierarchyNode node) {
+        return Child.remove(name, node);
+    }
+
+    public HashMap<String, HierarchyNode> getChild() {
+        return Child;
     }
 
     public boolean checkChild(String name) {

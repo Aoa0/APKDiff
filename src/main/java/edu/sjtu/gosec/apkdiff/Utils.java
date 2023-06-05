@@ -1,5 +1,7 @@
 package edu.sjtu.gosec.apkdiff;
 
+import soot.SootClass;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -76,5 +78,25 @@ public class Utils {
 
     }
 
+    public static boolean isResourceClass(String className) {
+        return className.endsWith(".R");
+    }
+
+    public static boolean isResourceClass(SootClass sootClass) {
+        String classSignature = sootClass.getName();
+        return isResourceClass(classSignature);
+    }
+
+    public static boolean isAndroidClass(SootClass sootClass) {
+        String classSignature = sootClass.getName();
+        return isAndroidClass(classSignature);
+    }
+
+    public static boolean isAndroidClass(String className) {
+        List<String> androidPrefixPkgNames = Arrays.asList("android.", "com.google.android.", "com.android.", "androidx.",
+                "kotlin.", "java.", "javax.", "sun.", "com.sun.", "jdk.", "j$.",
+                "org.omg.", "org.xml.", "org.w3c.dom");
+        return androidPrefixPkgNames.stream().map(className::startsWith).reduce(false, (res, curr) -> res || curr);
+    }
 
 }

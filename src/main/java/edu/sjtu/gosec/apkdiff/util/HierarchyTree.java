@@ -2,6 +2,8 @@ package edu.sjtu.gosec.apkdiff.util;
 
 import soot.SootClass;
 
+import java.util.Map;
+
 public class HierarchyTree {
     //TODO
     public HierarchyNode root;
@@ -37,13 +39,20 @@ public class HierarchyTree {
         addNode(clz.getPackageName(), clz);
     }
 
-    public void upgrade(SootClass clz) {
-        HierarchyNode field = findNode(clz.getPackageName());
-        if(field == root) {
-            return;
+    public void Squeezing(String name, HierarchyNode node) {
+        HierarchyNode father = node.getFather();
+        father.addClass(node.getClasses());
+        father.removeChild(name);
+        for(Map.Entry<String, HierarchyNode> entry : node.getChild().entrySet()) {
+            entry.getValue().setFather(father);
+            father.addChild(entry.getKey(), entry.getValue());
         }
-        field.removeClass(clz);
-        field = field.getFather();
-        field.addClass(clz);
+    }
+
+    public void show(HierarchyNode node, int level){
+        for(Map.Entry<String, HierarchyNode> entry : node.getChild().entrySet()) {
+            System.out.println(" ".repeat(level)+"-"+entry.getKey());
+            show(entry.getValue(), level+1);
+        }
     }
 }
