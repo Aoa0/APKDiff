@@ -1,5 +1,6 @@
 package edu.sjtu.gosec.apkdiff;
 
+import edu.sjtu.gosec.apkdiff.analysis.DiffAnalysis;
 import edu.sjtu.gosec.apkdiff.analysis.ObfuscationAnalysis;
 import edu.sjtu.gosec.apkdiff.profile.AppProfile;
 import edu.sjtu.gosec.apkdiff.util.HierarchyNode;
@@ -11,6 +12,7 @@ import soot.SootClass;
 import soot.jimple.infoflow.InfoflowConfiguration;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.SetupApplication;
+import soot.jimple.infoflow.android.iccta.App;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.jimple.infoflow.sourcesSinks.definitions.ISourceSinkDefinitionProvider;
 import soot.options.Options;
@@ -30,19 +32,10 @@ public class Executor {
     }
 
     public void run() {
-        setupSoot(source, androidJar);
-        PackManager.v().runPacks();
-        HierarchyTree tree = new HierarchyTree();
-        try (ProcessManifest manifest = new ProcessManifest(source)) {
-            AppProfile app = new AppProfile(Scene.v().getApplicationClasses());
-            app.PackageSqueezing();
-            app.hierarchyTree.show(app.hierarchyTree.root, 0);
-        } catch (XmlPullParserException | IOException e) {
-            throw new RuntimeException(e);
-        }
-        tree.show(tree.root, 0);
+        AppProfile sourceProfile = getAppProfile(source, androidJar);
+        AppProfile targetProfile = getAppProfile(target, androidJar);
+        DiffAnalysis analysis = new DiffAnalysis(sourceProfile, targetProfile);
     }
-
 
     protected void setupSoot(String apkPath, String androidJarPath) {
         soot.G.reset();
@@ -72,5 +65,15 @@ public class Executor {
         return config;
     }
 
-
+    public AppProfile getAppProfile(String apkPath, String androidJarPath) {
+        setupSoot(apkPath, androidJarPath);
+        PackManager.v().runPacks();
+        try (ProcessManifest manifest = new ProcessManifest(source)) {
+            AppProfile app = new AppProfile(Scene.v().getApplicationClasses());
+            //app.hierarchyTree.show(app.hierarchyTree.root, 0);
+            return app;
+        } catch (XmlPullParserException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

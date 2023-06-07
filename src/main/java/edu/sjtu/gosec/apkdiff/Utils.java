@@ -99,4 +99,7 @@ public class Utils {
         return androidPrefixPkgNames.stream().map(className::startsWith).reduce(false, (res, curr) -> res || curr);
     }
 
+    public static String getRawType(String type) {
+        return type.replace("[]", "").split("\\$")[0];
+    }
 }

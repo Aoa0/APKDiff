@@ -1,25 +1,25 @@
 package edu.sjtu.gosec.apkdiff.util;
 
-import soot.SootClass;
+import edu.sjtu.gosec.apkdiff.profile.ClassProfile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class HierarchyNode extends Node<SootClass>{
-    public ArrayList<SootClass> Classes;
+public class HierarchyNode extends Node<ClassProfile>{
+    public ArrayList<ClassProfile> Classes;
     public HashMap<String, HierarchyNode> Child;
 
     public HierarchyNode() {
         super();
-        Child = new HashMap<String, HierarchyNode>();
-        Classes = new ArrayList<SootClass>();
+        Child = new HashMap<>();
+        Classes = new ArrayList<>();
     }
 
-    public void addClass(SootClass clz) {
+    public void addClass(ClassProfile clz) {
         Classes.add(clz);
     }
 
-    public void addClass(ArrayList<SootClass> clzes) {
+    public void addClass(ArrayList<ClassProfile> clzes) {
         Classes.addAll(clzes);
     }
 
@@ -27,18 +27,18 @@ public class HierarchyNode extends Node<SootClass>{
         Child.put(className, child);
     }
 
-    public HierarchyNode addChild(String className) {
+    public HierarchyNode addChild(String name) {
         HierarchyNode a = new HierarchyNode();
         a.setFather(this);
-        Child.put(className, a);
+        Child.put(name, a);
         return a;
     }
 
-    public boolean removeClass(SootClass clz) {
+    public boolean removeClass(ClassProfile clz) {
         return Classes.remove(clz);
     }
 
-    public ArrayList<SootClass> getClasses() {
+    public ArrayList<ClassProfile> getClasses() {
         return Classes;
     }
 
@@ -58,7 +58,7 @@ public class HierarchyNode extends Node<SootClass>{
         return Child;
     }
 
-    public boolean checkChild(String name) {
+    public boolean hasChild(String name) {
         return Child.containsKey(name);
     }
 
