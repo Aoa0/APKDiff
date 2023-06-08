@@ -32,7 +32,7 @@ public class Utils {
 
     public static int sumList(ArrayList<Integer> list) {
         int ret = 0;
-        for (Integer i: list) {
+        for (Integer i : list) {
             ret += i;
         }
         return ret;
@@ -101,5 +101,34 @@ public class Utils {
 
     public static String getRawType(String type) {
         return type.replace("[]", "").split("\\$")[0];
+    }
+
+    public static boolean isAndroidType(String type) {
+        // "kotlin.", "com.google.android.",
+        List<String> androidPrefixNames = Arrays.asList("android.", "androidx.", "java.", "javax.");
+        for (String s : androidPrefixNames) {
+            if (type.startsWith(s)) {
+                return true;
+            }
+        }
+
+        List<String> basicTypes = Arrays.asList("byte", "short", "int", "long", "float", "double", "boolean", "char", "void");
+        type = getRawType(type);
+        for (String s : basicTypes) {
+            if (s.equals(type)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static String getHashType(String type) {
+        String m = getRawType(type);
+        if (isAndroidType(m)) {
+            return m;
+        } else {
+            return "X";
+        }
     }
 }

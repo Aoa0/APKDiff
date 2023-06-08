@@ -18,7 +18,10 @@ public class BasicClassProfile {
     private final List<String> interfaces;
     private final String superClass;
     private final List<SootMethod> methodList;
+    private final List<MethodProfile> methodProfiles;
+    private final List<SootField> fieldList;
     private final int methodNum;
+    public boolean matched = false;
 
     public BasicClassProfile(SootClass clz) {
         String superClass1;
@@ -51,22 +54,23 @@ public class BasicClassProfile {
         this.methodList = new ArrayList<>(clz.getMethods());
         this.methodNum = this.clz.getMethodCount();
 
+        this.methodProfiles = new ArrayList<>();
+        constructMethodProfiles();
 
+        this.fieldList = new ArrayList<>(clz.getFields());
+
+    }
+
+    private void constructMethodProfiles() {
+        for (SootMethod m : this.methodList) {
+            MethodProfile p = new MethodProfile(m);
+            this.methodProfiles.add(p);
+        }
     }
 
     public String getPackageName() {
         return clz.getPackageName();
     }
-
-    public Set<String> getFieldsType() {
-        Set<String> fieldsType = new TreeSet<>();
-        Chain<SootField> fields = this.clz.getFields();
-        for (SootField field : fields) {
-            fieldsType.add(Utils.getRawType(field.getType().toString()));
-        }
-        return fieldsType;
-    }
-
 
     public String getName() {
         return this.name;
@@ -78,6 +82,28 @@ public class BasicClassProfile {
 
     public List<SootMethod> getMethodList() {
         return this.methodList;
+    }
+
+    public String getMethodHash() {
+        List<String> hashes = new ArrayList<>();
+        for (MethodProfile method : methodProfiles) {
+            hashes.add(method.getHash());
+        }
+        hashes.sort(Comparator.naturalOrder());
+        return String.join("_", hashes);
+    }
+
+    public List<SootField> getFieldList() {
+        return fieldList;
+    }
+
+    public String getFieldHash() {
+        List<String> hashes = new ArrayList<>();
+        for (SootField field : fieldList) {
+            hashes.add(String.format("%d_%s",
+                    field.getModifiers(), Utils.getHashType(field.getType().toString())));
+        }
+        return String.join(",", hashes);
     }
 
     public boolean isEnum() {

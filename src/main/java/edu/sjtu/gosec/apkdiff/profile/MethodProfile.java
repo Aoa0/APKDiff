@@ -13,6 +13,7 @@ public class MethodProfile {
     private final String returnType;
     private final List<String> parameterTypes;
     private final List<String> constantStrings;
+    private String hash;
 
     public MethodProfile(SootMethod sootMethod) {
         this.sootMethod = sootMethod;
@@ -26,7 +27,21 @@ public class MethodProfile {
         }
 
         this.constantStrings = new ArrayList<>();
-        storeConstantStrings();
+        setHash();
+        //storeConstantStrings();
+    }
+
+    private void setHash() {
+        //String identifier = sootMethod.getName();
+        String identifier = "X";
+
+        int modifier = sootMethod.getModifiers();
+        List<String> parameters = new ArrayList<>();
+        for (String type : parameterTypes) {
+            parameters.add(Utils.getHashType(type));
+        }
+        this.hash = String.format("%s_%d_%s_%s",
+                identifier, modifier, Utils.getHashType(returnType), String.join(",", parameters));
     }
 
     private void storeConstantStrings() {
@@ -57,5 +72,9 @@ public class MethodProfile {
 
     public String getReturnType() {
         return returnType;
+    }
+
+    public String getHash() {
+        return hash;
     }
 }

@@ -4,15 +4,19 @@ import edu.sjtu.gosec.apkdiff.profile.ClassProfile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
-public class HierarchyNode extends Node<ClassProfile>{
-    public ArrayList<ClassProfile> Classes;
-    public HashMap<String, HierarchyNode> Child;
+public class HierarchyNode extends Node<ClassProfile> {
+    private final Set<ClassProfile> Classes;
+    private Set<ClassProfile> allClasses;
+    private final HashMap<String, HierarchyNode> Child;
 
     public HierarchyNode() {
         super();
         Child = new HashMap<>();
-        Classes = new ArrayList<>();
+        Classes = new HashSet<>();
+        allClasses = new HashSet<>();
     }
 
     public void addClass(ClassProfile clz) {
@@ -38,7 +42,7 @@ public class HierarchyNode extends Node<ClassProfile>{
         return Classes.remove(clz);
     }
 
-    public ArrayList<ClassProfile> getClasses() {
+    public Set<ClassProfile> getClasses() {
         return Classes;
     }
 
