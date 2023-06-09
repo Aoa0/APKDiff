@@ -1,20 +1,13 @@
 package edu.sjtu.gosec.apkdiff;
 
 import edu.sjtu.gosec.apkdiff.analysis.DiffAnalysis;
-import edu.sjtu.gosec.apkdiff.analysis.ObfuscationAnalysis;
 import edu.sjtu.gosec.apkdiff.profile.AppProfile;
-import edu.sjtu.gosec.apkdiff.util.HierarchyNode;
-import edu.sjtu.gosec.apkdiff.util.HierarchyTree;
 import org.xmlpull.v1.XmlPullParserException;
 import soot.PackManager;
 import soot.Scene;
-import soot.SootClass;
 import soot.jimple.infoflow.InfoflowConfiguration;
 import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
-import soot.jimple.infoflow.android.SetupApplication;
-import soot.jimple.infoflow.android.iccta.App;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
-import soot.jimple.infoflow.sourcesSinks.definitions.ISourceSinkDefinitionProvider;
 import soot.options.Options;
 
 import java.io.IOException;
@@ -35,6 +28,7 @@ public class Executor {
         AppProfile sourceProfile = getAppProfile(source, androidJar);
         AppProfile targetProfile = getAppProfile(target, androidJar);
         DiffAnalysis analysis = new DiffAnalysis(sourceProfile, targetProfile);
+        analysis.diff();
     }
 
     protected void setupSoot(String apkPath, String androidJarPath) {

@@ -36,7 +36,7 @@ public class AppProfile {
                 continue;
             }
             ClassProfile classProfile = new ClassProfile(clz);
-            System.out.println(classProfile.getFieldHash());
+            //System.out.println(classProfile.getFieldHash());
             hierarchyTree.addClass(clz.getPackageName(), classProfile);
             allClasses.put(clzName, classProfile);
         }

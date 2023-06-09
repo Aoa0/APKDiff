@@ -9,14 +9,12 @@ import java.util.Set;
 
 public class HierarchyNode extends Node<ClassProfile> {
     private final Set<ClassProfile> Classes;
-    private Set<ClassProfile> allClasses;
     private final HashMap<String, HierarchyNode> Child;
 
     public HierarchyNode() {
         super();
         Child = new HashMap<>();
         Classes = new HashSet<>();
-        allClasses = new HashSet<>();
     }
 
     public void addClass(ClassProfile clz) {
@@ -69,5 +67,14 @@ public class HierarchyNode extends Node<ClassProfile> {
     @Override
     public HierarchyNode getFather() {
         return (HierarchyNode) super.getFather();
+    }
+
+    public Set<ClassProfile> getAllClasses() {
+        Set<ClassProfile> all = new HashSet<>();
+        all.addAll(Classes);
+        for(HierarchyNode child:Child.values()) {
+            all.addAll(child.getAllClasses());
+        }
+        return all;
     }
 }
