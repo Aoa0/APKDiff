@@ -10,8 +10,12 @@ import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.options.Options;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Collections;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class Executor {
     private final String source;
@@ -29,6 +33,7 @@ public class Executor {
         AppProfile targetProfile = getAppProfile(target, androidJar);
         DiffAnalysis analysis = new DiffAnalysis(sourceProfile, targetProfile);
         analysis.diff();
+        writeMatchesToFile(analysis.getResult());
     }
 
     protected void setupSoot(String apkPath, String androidJarPath) {
@@ -63,10 +68,20 @@ public class Executor {
         setupSoot(apkPath, androidJarPath);
         PackManager.v().runPacks();
         try (ProcessManifest manifest = new ProcessManifest(source)) {
-            AppProfile app = new AppProfile(Scene.v().getApplicationClasses());
             //app.hierarchyTree.show(app.hierarchyTree.root, 0);
-            return app;
+            return new AppProfile(Scene.v().getApplicationClasses());
         } catch (XmlPullParserException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void writeMatchesToFile(Map<String, String> matches) {
+        TreeMap<String, String> sortedMatches = new TreeMap<>(matches);
+        try (PrintWriter out = new PrintWriter("results/match.txt")) {
+            for (Map.Entry<String, String> entry : sortedMatches.entrySet()) {
+                out.write(entry.getKey() + " -> " + entry.getValue() + "\n");
+            }
+        } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

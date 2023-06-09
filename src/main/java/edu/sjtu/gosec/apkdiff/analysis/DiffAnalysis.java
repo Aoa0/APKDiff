@@ -9,10 +9,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DiffAnalysis {
 
@@ -39,33 +36,27 @@ public class DiffAnalysis {
 
     public void diff() {
         buildPackageMatch();
-        matchIterate();
-
-        //ToDo: need iteration?
-        /*
+        basicMatch();
         boolean sign = true;
-        while (sign) {
-            sign = matchIterate();
+        while(sign) {
+            System.out.println("iterate");
+            sign = extendMatch();
         }
-        */
 
         show();
     }
 
-    private boolean matchIterate() {
-        boolean sign = false;
+    private void basicMatch() {
         for (Map.Entry<HierarchyNode, HierarchyNode> entry : packageMatches.entrySet()) {
             MatchSet matchSet = new MatchSet(entry.getKey(), entry.getValue());
             matchSet.runMatch();
-            sign = sign || matchSet.check();
+            check();
         }
-        return sign;
     }
 
     class MatchSet {
         private final Set<ClassProfile> ClassSet1;
         private final Set<ClassProfile> ClassSet2;
-        private boolean sign = false;
 
         private MatchSet(HierarchyNode n1, HierarchyNode n2) {
             ClassSet1 = n1.getAllClasses();
@@ -92,39 +83,63 @@ public class DiffAnalysis {
             potentialMatches.addVertex(vertex2);
             potentialMatches.addEdge(vertex1, vertex2);
         }
+    }
 
-        private boolean check() {
-            Map<String, String> newMatch = new HashMap<>();
+    private boolean check() {
+        Map<String, String> newMatch = new HashMap<>();
 
-            for (String vertex : potentialMatches.vertexSet()) {
-                if (vertex.startsWith("target.")) {
-                    continue;
-                }
-                if (potentialMatches.edgesOf(vertex).size() == 1) {
-                    DefaultEdge edge = potentialMatches.edgesOf(vertex).iterator().next();
-                    String vertex2 = potentialMatches.getEdgeTarget(edge);
-                    if (potentialMatches.edgesOf(vertex2).size() == 1) {
-                        newMatch.put(vertex, vertex2);
-                    }
+        for (String vertex : potentialMatches.vertexSet()) {
+            if (vertex.startsWith("target.")) {
+                continue;
+            }
+            if (potentialMatches.edgesOf(vertex).size() == 1) {
+                DefaultEdge edge = potentialMatches.edgesOf(vertex).iterator().next();
+                String vertex2 = potentialMatches.getEdgeTarget(edge);
+                if (potentialMatches.edgesOf(vertex2).size() == 1) {
+                    newMatch.put(vertex, vertex2);
                 }
             }
-
-            for (Map.Entry<String, String> entry : newMatch.entrySet()) {
-                potentialMatches.removeVertex(entry.getKey());
-                potentialMatches.removeVertex(entry.getValue());
-                addMatch(entry.getKey().replace("source.", ""), entry.getValue().replace("target.", ""));
-            }
-            return false;
         }
+
+        return refreshMatch(newMatch);
     }
 
     private void addMatch(String c1, String c2) {
         matches.put(c1, c2);
-        System.out.println(c1 + " -> " + c2);
+        //System.out.println(c1 + " -> " + c2);
         SourceMatched.put(c1, srcProfile.getAllClasses().get(c1));
         TargetMatched.put(c2, tarProfile.getAllClasses().get(c2));
     }
 
+    private boolean extendMatch() {
+        Map<String, String> newMatch = new HashMap<>();
+        for(DefaultEdge edge:potentialMatches.edgeSet()) {
+            String src = potentialMatches.getEdgeSource(edge);
+            String tar = potentialMatches.getEdgeTarget(edge);
+            ClassProfile srcClass = srcProfile.getAllClasses().get(src.replace("source.", ""));
+            ClassProfile tarClass = tarProfile.getAllClasses().get(tar.replace("target.", ""));
+            if(matches.containsKey(srcClass.getSuperClass())) {
+                if (Objects.equals(matches.get(srcClass.getSuperClass()), tarClass.getSuperClass())) {
+                    newMatch.put(src, tar);
+                }
+            }
+        }
+        refreshMatch(newMatch);
+
+
+        return check();
+    }
+
+    private boolean refreshMatch(Map<String, String> newMatch) {
+        boolean sign = false;
+        for (Map.Entry<String, String> entry : newMatch.entrySet()) {
+            sign = true;
+            potentialMatches.removeVertex(entry.getKey());
+            potentialMatches.removeVertex(entry.getValue());
+            addMatch(entry.getKey().replace("source.", ""), entry.getValue().replace("target.", ""));
+        }
+        return sign;
+    }
     private void buildPackageMatch() {
         this.packageMatches = new LinkedHashMap<>();
         HierarchyNode i1 = srcTree.root;
@@ -144,5 +159,9 @@ public class DiffAnalysis {
 
     public void show() {
         //ToDo: Show the result
+    }
+
+    public Map<String, String> getResult() {
+        return matches;
     }
 }

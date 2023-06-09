@@ -125,10 +125,12 @@ public class Utils {
 
     public static String getHashType(String type) {
         String m = getRawType(type);
-        if (isAndroidType(m)) {
-            return m;
-        } else {
-            return "X";
+        if (!isAndroidType(m)) {
+            m = "X";
         }
+        if(type.contains("[]")) {
+            m = m + "[]";
+        }
+        return m;
     }
 }

@@ -31,22 +31,27 @@ public class AppProfile {
                 continue;
             }
             String clzName = clz.getName();
+
+            /*
             if (clzName.contains("$")) {
                 toMerge.add(clz);
                 continue;
             }
+            */
+
             ClassProfile classProfile = new ClassProfile(clz);
             //System.out.println(classProfile.getFieldHash());
             hierarchyTree.addClass(clz.getPackageName(), classProfile);
             allClasses.put(clzName, classProfile);
         }
+        System.out.println(allClasses.size());
         //mergeInnerclass(toMerge);
     }
 
     private void mergeInnerclass(List<SootClass> toMerge) {
         for (SootClass clz : toMerge) {
             //ToDo: Innerclass need to be finished
-            //System.out.println(clz.getName());
+            System.out.println(clz.getName());
         }
     }
 
