@@ -116,8 +116,8 @@ public class DiffAnalysis {
         for(DefaultEdge edge:potentialMatches.edgeSet()) {
             String src = potentialMatches.getEdgeSource(edge);
             String tar = potentialMatches.getEdgeTarget(edge);
-            ClassProfile srcClass = srcProfile.getAllClasses().get(src.replace("source.", ""));
-            ClassProfile tarClass = tarProfile.getAllClasses().get(tar.replace("target.", ""));
+            ClassProfile srcClass = srcProfile.getAllClasses().get(src.replaceFirst("source.", ""));
+            ClassProfile tarClass = tarProfile.getAllClasses().get(tar.replaceFirst("target.", ""));
             if(matches.containsKey(srcClass.getSuperClass())) {
                 if (Objects.equals(matches.get(srcClass.getSuperClass()), tarClass.getSuperClass())) {
                     newMatch.put(src, tar);
@@ -136,7 +136,7 @@ public class DiffAnalysis {
             sign = true;
             potentialMatches.removeVertex(entry.getKey());
             potentialMatches.removeVertex(entry.getValue());
-            addMatch(entry.getKey().replace("source.", ""), entry.getValue().replace("target.", ""));
+            addMatch(entry.getKey().replaceFirst("source.", ""), entry.getValue().replaceFirst("target.", ""));
         }
         return sign;
     }

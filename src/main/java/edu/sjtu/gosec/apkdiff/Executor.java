@@ -77,7 +77,7 @@ public class Executor {
 
     public void writeMatchesToFile(Map<String, String> matches) {
         TreeMap<String, String> sortedMatches = new TreeMap<>(matches);
-        try (PrintWriter out = new PrintWriter("results/match.txt")) {
+        try (PrintWriter out = new PrintWriter("results/match_mewe.txt")) {
             for (Map.Entry<String, String> entry : sortedMatches.entrySet()) {
                 out.write(entry.getKey() + " -> " + entry.getValue() + "\n");
             }
