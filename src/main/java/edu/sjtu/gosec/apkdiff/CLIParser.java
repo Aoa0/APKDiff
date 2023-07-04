@@ -1,16 +1,21 @@
 package edu.sjtu.gosec.apkdiff;
 
 import org.apache.commons.cli.*;
+import edu.sjtu.gosec.apkdiff.util.AnalyseOption;
 
 public class CLIParser {
+    private AnalyseOption analyseOption;
     private static Options options;
     private String sourceAPK;
     private String targetAPK;
     private String androidJAR;
+    private String targetDir;
 
     public static class CLIArgs {
         static final String ANDROID_SDK_PATH = "s";
         static final String ANDROID_SDK_PATH_L = "android-sdk";
+        static final String ANALYSE_APK_DIR = "d";
+        static final String ANALYSE_APK_PAIR = "p";
     }
 
     public CLIParser(String[] args) {
@@ -27,8 +32,21 @@ public class CLIParser {
                 .hasArg()
                 .desc("path to android sdk")
                 .build();
-
+        Option analyseDir = Option.builder(CLIArgs.ANALYSE_APK_DIR)
+                .argName("analyse_dir")
+                .required(false)
+                .hasArg()
+                .desc("analyse a directory of app")
+                .build();
+        Option analysePair = Option.builder(CLIArgs.ANALYSE_APK_PAIR)
+                .argName("analyse_pair")
+                .required(false)
+                .numberOfArgs(2)
+                .desc("analyse a pair of apks")
+                .build();
         options.addOption(sdkPath);
+        options.addOption(analysePair);
+        options.addOption(analyseDir);
     }
 
 
@@ -58,19 +76,20 @@ public class CLIParser {
                 usage();
             }
 
-            String[] inputs = cmd.getArgs();
-            if (inputs.length != 2) {
+            if (cmd.hasOption(CLIArgs.ANALYSE_APK_DIR)) {
+                String dir = cmd.getOptionValue(CLIArgs.ANALYSE_APK_DIR);
+                if (!Utils.validateDirectory(dir))
+                    die("dir path does not exist ot it is not a directory: " + dir);
+                else
+                    targetDir = dir;
+                analyseOption = AnalyseOption.DIRECTORY;
+            } else if (cmd.hasOption(CLIArgs.ANALYSE_APK_PAIR)) {
+                analyseOption = AnalyseOption.PAIR;
+                sourceAPK = cmd.getOptionValues(CLIArgs.ANALYSE_APK_PAIR)[0];
+                targetAPK = cmd.getOptionValues(CLIArgs.ANALYSE_APK_PAIR)[1];
+            } else {
                 usage();
             }
-
-            for(String input: inputs) {
-                if (!Utils.validateFile(input)) {
-                    die("File: " + input + " is not valid");
-                }
-            }
-
-            sourceAPK = inputs[0];
-            targetAPK = inputs[1];
 
         } catch (ParseException e) {
             throw new RuntimeException(e);
@@ -87,5 +106,13 @@ public class CLIParser {
 
     public String getAndroidJAR() {
         return androidJAR;
+    }
+
+    public String getTargetDir() {
+        return targetDir;
+    }
+
+    public AnalyseOption getAnalyseOption() {
+        return analyseOption;
     }
 }

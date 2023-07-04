@@ -10,30 +10,61 @@ import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.options.Options;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class Executor {
-    private final String source;
-    private final String target;
+    private String source;
+    private String target;
     private final String androidJar;
+    private String dir;
+    String sourceName;
+    String targetName;
+    AppProfile sourceProfile;
+    AppProfile targetProfile;
 
     public Executor(String source, String target, String androidJar) {
         this.source = source;
         this.target = target;
+        this.sourceName = source.split("/")[0];
+        this.targetName = target.split("/")[0];
+        this.androidJar = androidJar;
+        this.sourceProfile = getAppProfile(source, androidJar);
+        this.targetProfile = getAppProfile(target, androidJar);
+    }
+
+    public Executor(String dir, String androidJar) {
+        this.dir = dir;
         this.androidJar = androidJar;
     }
 
     public void run() {
-        AppProfile sourceProfile = getAppProfile(source, androidJar);
-        AppProfile targetProfile = getAppProfile(target, androidJar);
         DiffAnalysis analysis = new DiffAnalysis(sourceProfile, targetProfile);
         analysis.diff();
-        writeMatchesToFile(analysis.getResult());
+        writeMatchesToFile(analysis.getResult(), sourceName+"_2_"+targetName);
+    }
+
+    public void runPairAnalyse() {
+        File directory = new File(dir);
+        ArrayList<String> apks = new ArrayList<>(Arrays.asList(Objects.requireNonNull(directory.list())));
+        Collections.sort(apks);
+        this.targetName = apks.get(0);
+        this.target = dir + "/" + apks.get(0);
+        this.targetProfile = getAppProfile(target, androidJar);
+        apks.remove(0);
+
+        for(String apk:apks) {
+            this.sourceName = this.targetName;
+            this.source = this.target;
+            this.sourceProfile = this.targetProfile;
+            this.target = dir + "/" + apk;
+            this.targetName = apk;
+            this.targetProfile = getAppProfile(target, androidJar);
+            run();
+        }
     }
 
     protected void setupSoot(String apkPath, String androidJarPath) {
@@ -67,7 +98,7 @@ public class Executor {
     public AppProfile getAppProfile(String apkPath, String androidJarPath) {
         setupSoot(apkPath, androidJarPath);
         PackManager.v().runPacks();
-        try (ProcessManifest manifest = new ProcessManifest(source)) {
+        try (ProcessManifest manifest = new ProcessManifest(apkPath)) {
             //app.hierarchyTree.show(app.hierarchyTree.root, 0);
             return new AppProfile(Scene.v().getApplicationClasses());
         } catch (XmlPullParserException | IOException e) {
@@ -75,9 +106,9 @@ public class Executor {
         }
     }
 
-    public void writeMatchesToFile(Map<String, String> matches) {
+    public void writeMatchesToFile(Map<String, String> matches, String tar) {
         TreeMap<String, String> sortedMatches = new TreeMap<>(matches);
-        try (PrintWriter out = new PrintWriter("results/match_mewe.txt")) {
+        try (PrintWriter out = new PrintWriter("results/"+tar+".txt")) {
             for (Map.Entry<String, String> entry : sortedMatches.entrySet()) {
                 out.write(entry.getKey() + " -> " + entry.getValue() + "\n");
             }
