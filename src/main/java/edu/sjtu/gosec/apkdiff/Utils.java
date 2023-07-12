@@ -133,4 +133,9 @@ public class Utils {
         }
         return m;
     }
+
+    public static String dexClassType2Name(String classType ) {
+        classType = classType.replace('/', '.');
+        return classType.substring(1, classType.length()-1);
+    }
 }

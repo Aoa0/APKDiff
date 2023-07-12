@@ -3,6 +3,9 @@ package edu.sjtu.gosec.apkdiff.profile;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
+import soot.tagkit.AnnotationTag;
+import soot.tagkit.Tag;
+import soot.tagkit.VisibilityAnnotationTag;
 import soot.util.Chain;
 
 import edu.sjtu.gosec.apkdiff.Utils;
@@ -22,10 +25,12 @@ public class BasicClassProfile {
     private final List<SootField> fieldList;
     private final int methodNum;
     public boolean matched = false;
+    private final Map<String, ArrayList<String>> methodInstructionMap;
 
-    public BasicClassProfile(SootClass clz) {
+    public BasicClassProfile(SootClass clz,  DexProfile dexProfile) {
         String superClass1;
         this.clz = clz;
+        this.methodInstructionMap = dexProfile.getMethodInstructionMap();
 
         this.name = clz.getName();
         this.isEnum = clz.isEnum();
@@ -62,10 +67,24 @@ public class BasicClassProfile {
     }
 
     private void constructMethodProfiles() {
-        for (SootMethod m : this.methodList) {
-            MethodProfile p = new MethodProfile(m);
+        for (SootMethod m: this.methodList) {
+            if (
+//                m.isConstructor() ||
+//                m.isStaticInitializer() ||
+                    m.getName().startsWith("access$") ||
+                            isDeprecated(m)) {
+                continue;
+            }
+            String methodName = name + "." + m.getName();
+            ArrayList<String> instructions = methodInstructionMap.get(methodName);
+            MethodProfile p = new MethodProfile(m, instructions);
+
             this.methodProfiles.add(p);
         }
+    }
+
+    public List<MethodProfile> getMethodProfiles() {
+        return methodProfiles;
     }
 
     public String getPackageName() {
@@ -104,6 +123,23 @@ public class BasicClassProfile {
                     field.getModifiers(), Utils.getHashType(field.getType().toString())));
         }
         return String.join(",", hashes);
+    }
+
+    private boolean isDeprecated(SootMethod sootMethod) {
+        List<Tag> tags = sootMethod.getTags();
+        for (Tag tag: tags) {
+            // VisibilityParameterAnnotationTag
+            if (tag instanceof VisibilityAnnotationTag) {
+                ArrayList<AnnotationTag> annotationTags = ((VisibilityAnnotationTag) tag).getAnnotations();
+                for (AnnotationTag annotationTag: annotationTags) {
+                    String type = annotationTag.getType();
+                    if (Objects.equals(type, "Lkotlin/Deprecated;")) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public boolean isEnum() {

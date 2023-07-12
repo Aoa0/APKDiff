@@ -1,7 +1,9 @@
 package edu.sjtu.gosec.apkdiff.analysis;
 
+import edu.sjtu.gosec.apkdiff.Utils;
 import edu.sjtu.gosec.apkdiff.profile.AppProfile;
 import edu.sjtu.gosec.apkdiff.profile.ClassProfile;
+import edu.sjtu.gosec.apkdiff.profile.MethodProfile;
 import edu.sjtu.gosec.apkdiff.util.HierarchyNode;
 import edu.sjtu.gosec.apkdiff.util.HierarchyTree;
 
@@ -159,6 +161,28 @@ public class DiffAnalysis {
 
     public void show() {
         //ToDo: Show the result
+    }
+
+    private boolean isClassInteresting(ClassProfile c) {
+        return !isClassEmpty(c) &&
+                !c.isInterface() &&
+                !c.isEnum() &&
+                !Utils.isAndroidClass(c.getName()) &&
+                !Utils.isResourceClass(c.getName());
+    }
+
+    private boolean isClassEmpty(ClassProfile c) {
+        int methodNum = c.getMethodNum();
+        if (methodNum == 0) {
+            return true;
+        } else {
+            for (MethodProfile mp : c.getMethodProfiles()) {
+                if (mp.getStatementNum() != 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public Map<String, String> getResult() {

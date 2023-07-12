@@ -5,7 +5,7 @@ import soot.SootClass;
 public class  ClassProfile extends BasicClassProfile{
     private SootClass clz;
 
-    public ClassProfile(SootClass clz) {
-        super(clz);
+    public ClassProfile(SootClass clz, DexProfile dexProfile) {
+        super(clz, dexProfile);
     }
 }

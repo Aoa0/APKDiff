@@ -100,7 +100,7 @@ public class Executor {
         PackManager.v().runPacks();
         try (ProcessManifest manifest = new ProcessManifest(apkPath)) {
             //app.hierarchyTree.show(app.hierarchyTree.root, 0);
-            return new AppProfile(Scene.v().getApplicationClasses());
+            return new AppProfile(apkPath, manifest);
         } catch (XmlPullParserException | IOException e) {
             throw new RuntimeException(e);
         }
