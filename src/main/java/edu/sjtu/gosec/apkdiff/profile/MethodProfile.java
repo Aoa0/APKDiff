@@ -1,33 +1,25 @@
 package edu.sjtu.gosec.apkdiff.profile;
 
 import edu.sjtu.gosec.apkdiff.Utils;
-import org.jgrapht.Graph;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
 import soot.*;
 import soot.jimple.StringConstant;
 import soot.jimple.internal.ImmediateBox;
-import soot.toolkits.graph.Block;
-import soot.toolkits.graph.CompleteBlockGraph;
+
 import soot.toolkits.graph.CompleteUnitGraph;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Map;
 
 public class MethodProfile {
     private final SootMethod sootMethod;
     private final String returnType;
     private final List<String> parameterTypes;
     private final List<String> constantStrings;
-    private final List<String> instructions;
     private int statementNum = 0;
     private String hash;
 
-    public MethodProfile(SootMethod sootMethod, List<String> instructions) {
+    public MethodProfile(SootMethod sootMethod) {
         this.sootMethod = sootMethod;
-        this.instructions = instructions;
 
         this.returnType = this.sootMethod.getReturnType().toString();
         this.parameterTypes = new ArrayList<>();

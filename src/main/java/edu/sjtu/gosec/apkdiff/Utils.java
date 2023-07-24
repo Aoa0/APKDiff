@@ -138,4 +138,11 @@ public class Utils {
         classType = classType.replace('/', '.');
         return classType.substring(1, classType.length()-1);
     }
+
+    public static void checkAndMake(String path) {
+        File dir = new File(path);
+        if(!dir.isDirectory()) {
+            boolean dr = dir.mkdirs();
+        }
+    }
 }

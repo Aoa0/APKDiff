@@ -29,3 +29,5 @@ replay_pid*
 
 # result of test
 results
+/META-INF/
+/out/

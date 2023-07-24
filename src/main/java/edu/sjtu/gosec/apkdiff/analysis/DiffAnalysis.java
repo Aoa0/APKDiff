@@ -10,6 +10,8 @@ import edu.sjtu.gosec.apkdiff.util.HierarchyTree;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -24,6 +26,7 @@ public class DiffAnalysis {
     private Map<String, String> matches;
     private Graph<String, DefaultEdge> potentialMatches;
     private Map<HierarchyNode, HierarchyNode> packageMatches;
+    private final Logger logger = LoggerFactory.getLogger(DiffAnalysis.class);
 
     public DiffAnalysis(AppProfile src, AppProfile tar) {
         this.matches = new HashMap<>();
@@ -41,7 +44,7 @@ public class DiffAnalysis {
         basicMatch();
         boolean sign = true;
         while(sign) {
-            System.out.println("iterate");
+            logger.info("Match Iterate");
             sign = extendMatch();
         }
 

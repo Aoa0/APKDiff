@@ -25,12 +25,10 @@ public class BasicClassProfile {
     private final List<SootField> fieldList;
     private final int methodNum;
     public boolean matched = false;
-    private final Map<String, ArrayList<String>> methodInstructionMap;
 
-    public BasicClassProfile(SootClass clz,  DexProfile dexProfile) {
+    public BasicClassProfile(SootClass clz) {
         String superClass1;
         this.clz = clz;
-        this.methodInstructionMap = dexProfile.getMethodInstructionMap();
 
         this.name = clz.getName();
         this.isEnum = clz.isEnum();
@@ -75,9 +73,7 @@ public class BasicClassProfile {
                             isDeprecated(m)) {
                 continue;
             }
-            String methodName = name + "." + m.getName();
-            ArrayList<String> instructions = methodInstructionMap.get(methodName);
-            MethodProfile p = new MethodProfile(m, instructions);
+            MethodProfile p = new MethodProfile(m);
 
             this.methodProfiles.add(p);
         }

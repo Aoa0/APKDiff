@@ -2,19 +2,18 @@ package edu.sjtu.gosec.apkdiff;
 
 import edu.sjtu.gosec.apkdiff.analysis.DiffAnalysis;
 import edu.sjtu.gosec.apkdiff.profile.AppProfile;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
 import soot.PackManager;
 import soot.Scene;
-import soot.jimple.infoflow.InfoflowConfiguration;
-import soot.jimple.infoflow.android.InfoflowAndroidConfiguration;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.options.Options;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.*;
+
+import static edu.sjtu.gosec.apkdiff.Utils.checkAndMake;
 
 public class Executor {
     private String source;
@@ -25,6 +24,9 @@ public class Executor {
     String targetName;
     AppProfile sourceProfile;
     AppProfile targetProfile;
+    String outDir = "";
+    long time;
+    private static final Logger logger = LoggerFactory.getLogger(Executor.class);
 
     public Executor(String source, String target, String androidJar) {
         this.source = source;
@@ -42,16 +44,26 @@ public class Executor {
     }
 
     public void run() {
+        logger.info("Diffing: " + sourceName + "  " + targetName);
         DiffAnalysis analysis = new DiffAnalysis(sourceProfile, targetProfile);
         analysis.diff();
-        writeMatchesToFile(analysis.getResult(), sourceName+"_2_"+targetName);
+        writeMatchesToFile(analysis.getResult(), sourceName+"_vs_"+targetName);
     }
 
     public void runPairAnalyse() {
         File directory = new File(dir);
         ArrayList<String> apks = new ArrayList<>(Arrays.asList(Objects.requireNonNull(directory.list())));
-        Collections.sort(apks);
+        logger.info(apks.size() + "apks need to be analysed");
+        apks.sort((str1, str2) -> {
+            int id1 = Integer.parseInt(str1.split("___")[1].replace(".apk", ""));
+            int id2 = Integer.parseInt(str2.split("___")[1].replace(".apk", ""));
+            return id1 - id2;
+        });
+        this.time = System.currentTimeMillis();
         this.targetName = apks.get(0);
+        this.outDir = outDir + "/" + targetName.split("___")[0];
+        checkAndMake(outDir);
+        this.targetName = targetName.split("___")[1].replace(".apk", "");
         this.target = dir + "/" + apks.get(0);
         this.targetProfile = getAppProfile(target, androidJar);
         apks.remove(0);
@@ -61,9 +73,10 @@ public class Executor {
             this.source = this.target;
             this.sourceProfile = this.targetProfile;
             this.target = dir + "/" + apk;
-            this.targetName = apk;
+            this.targetName = apk.split("___")[1].replace(".apk", "");;
             this.targetProfile = getAppProfile(target, androidJar);
             run();
+            recordTime();
         }
     }
 
@@ -84,18 +97,8 @@ public class Executor {
         Scene.v().loadDynamicClasses();
     }
 
-    public static InfoflowAndroidConfiguration getFlowDroidConfig(String apkPath, String androidJar) {
-        final InfoflowAndroidConfiguration config = new InfoflowAndroidConfiguration();
-        config.getAnalysisFileConfig().setTargetAPKFile(apkPath);
-        config.getAnalysisFileConfig().setAndroidPlatformDir(androidJar);
-        config.setCallgraphAlgorithm(InfoflowConfiguration.CallgraphAlgorithm.CHA);
-        config.setMergeDexFiles(true);
-        config.setCodeEliminationMode(InfoflowConfiguration.CodeEliminationMode.NoCodeElimination);
-
-        return config;
-    }
-
     public AppProfile getAppProfile(String apkPath, String androidJarPath) {
+        //ToDo: need timeout check
         setupSoot(apkPath, androidJarPath);
         PackManager.v().runPacks();
         try (ProcessManifest manifest = new ProcessManifest(apkPath)) {
@@ -108,12 +111,26 @@ public class Executor {
 
     public void writeMatchesToFile(Map<String, String> matches, String tar) {
         TreeMap<String, String> sortedMatches = new TreeMap<>(matches);
-        try (PrintWriter out = new PrintWriter("results/"+tar+".txt")) {
+        try (PrintWriter out = new PrintWriter(outDir+"/"+tar+".txt")) {
             for (Map.Entry<String, String> entry : sortedMatches.entrySet()) {
                 out.write(entry.getKey() + " -> " + entry.getValue() + "\n");
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void recordTime() {
+        long now = System.currentTimeMillis();
+        try (FileWriter out = new FileWriter(outDir+"/recordTime.txt", true)) {
+            out.write(sourceName+" VS "+targetName+": "+(now - this.time)+"\n");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        this.time = System.currentTimeMillis();
+    }
+
+    public void setOutDir(String outDir) {
+        this.outDir = outDir;
     }
 }

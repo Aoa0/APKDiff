@@ -9,13 +9,15 @@ public class CLIParser {
     private String sourceAPK;
     private String targetAPK;
     private String androidJAR;
-    private String targetDir;
+    private String sourceDir;
+    private String targetDir = "";
 
     public static class CLIArgs {
         static final String ANDROID_SDK_PATH = "s";
         static final String ANDROID_SDK_PATH_L = "android-sdk";
         static final String ANALYSE_APK_DIR = "d";
         static final String ANALYSE_APK_PAIR = "p";
+        static final String ANALYSE_APK_PAIR_RESULT_DIR = "o";
     }
 
     public CLIParser(String[] args) {
@@ -44,9 +46,16 @@ public class CLIParser {
                 .numberOfArgs(2)
                 .desc("analyse a pair of apks")
                 .build();
+        Option resultDir = Option.builder(CLIArgs.ANALYSE_APK_PAIR_RESULT_DIR)
+                .argName("analyse_result_dir")
+                .required(false)
+                .hasArg()
+                .desc("where the results are put")
+                .build();
         options.addOption(sdkPath);
         options.addOption(analysePair);
         options.addOption(analyseDir);
+        options.addOption(resultDir);
     }
 
 
@@ -56,7 +65,8 @@ public class CLIParser {
     }
 
     private void usage() {
-        System.out.println("usage: java -jar apkdiff.jar apk_path apk_path");
+        System.out.println("usage: java -jar apkdiff.jar -s sdk -p apk_path apk_path");
+        System.out.println("                             -s sdk -d example [-o resultDir]");
         System.exit(0);
     }
 
@@ -81,8 +91,15 @@ public class CLIParser {
                 if (!Utils.validateDirectory(dir))
                     die("dir path does not exist ot it is not a directory: " + dir);
                 else
-                    targetDir = dir;
+                    sourceDir = dir;
                 analyseOption = AnalyseOption.DIRECTORY;
+                if (cmd.hasOption(CLIArgs.ANALYSE_APK_PAIR_RESULT_DIR)) {
+                    String outdir = cmd.getOptionValue(CLIArgs.ANALYSE_APK_PAIR_RESULT_DIR);
+                    if (!Utils.validateDirectory((outdir)))
+                        die("outdir path does not exist ot it is not a directory: " + outdir);
+                    else
+                        targetDir = outdir;
+                }
             } else if (cmd.hasOption(CLIArgs.ANALYSE_APK_PAIR)) {
                 analyseOption = AnalyseOption.PAIR;
                 sourceAPK = cmd.getOptionValues(CLIArgs.ANALYSE_APK_PAIR)[0];
@@ -114,5 +131,9 @@ public class CLIParser {
 
     public AnalyseOption getAnalyseOption() {
         return analyseOption;
+    }
+
+    public String getSourceDir() {
+        return sourceDir;
     }
 }

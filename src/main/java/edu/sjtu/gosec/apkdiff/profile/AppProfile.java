@@ -1,6 +1,8 @@
 package edu.sjtu.gosec.apkdiff.profile;
 
 import edu.sjtu.gosec.apkdiff.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import soot.Modifier;
 import soot.PackManager;
 import soot.Scene;
@@ -19,18 +21,31 @@ public class AppProfile {
     public HierarchyTree hierarchyTree;
     private final Chain<SootClass> sootClasses;
     private final Map<String, ClassProfile> allClasses;
-    private final DexProfile dexProfile;
     private final String packageName;
+    private final String versionName;
+    private final int versionCode;
     private final String apkPath;
+    private final Logger logger = LoggerFactory.getLogger(AppProfile.class);
 
 
     public AppProfile(String apkPath, ProcessManifest manifest) {
-        dexProfile = new DexProfile(apkPath);
-        PackManager.v().runPacks();
         this.apkPath = apkPath;
+        this.packageName = manifest.getPackageName();
+        this.versionName = manifest.getVersionName();
+        this.versionCode = manifest.getVersionCode();
+
+        logger.info("Profiling: " + apkPath);
+        logger.info("package name: " + this.packageName);
+        logger.info("version code: " + this.versionCode);
+        logger.info("version name: " + this.versionName);
+
+        logger.info("Run Soot Packs.");
+        PackManager.v().runPacks();
+
+        logger.info("Run APKDiff Profiler.");
         this.allClasses = new HashMap<>();
         this.sootClasses = Scene.v().getApplicationClasses();
-        this.packageName = manifest.getPackageName();
+        logger.info("Build Hierarchy Tree.");
         this.hierarchyTree = new HierarchyTree();
         buildHierarchy();
     }
@@ -55,12 +70,12 @@ public class AppProfile {
             }
             */
 
-            ClassProfile classProfile = new ClassProfile(clz, dexProfile);
+            ClassProfile classProfile = new ClassProfile(clz);
             //System.out.println(classProfile.getFieldHash());
             hierarchyTree.addClass(clz.getPackageName(), classProfile);
             allClasses.put(clzName, classProfile);
         }
-        System.out.println(allClasses.size());
+        logger.info("Class Number: " + allClasses.size());
         //mergeInnerclass(toMerge);
     }
 
@@ -69,6 +84,18 @@ public class AppProfile {
             //ToDo: Innerclass need to be finished
             System.out.println(clz.getName());
         }
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public String getVersionName() {
+        return versionName;
+    }
+
+    public int getVersionCode() {
+        return versionCode;
     }
 
     public Map<String, ClassProfile> getAllClasses() {

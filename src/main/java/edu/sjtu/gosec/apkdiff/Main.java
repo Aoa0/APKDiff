@@ -9,7 +9,8 @@ public class Main {
             Executor executor = new Executor(cliParser.getTargetAPK(), cliParser.getSourceAPK(), cliParser.getAndroidJAR());
             executor.run();
         } else if (cliParser.getAnalyseOption()==AnalyseOption.DIRECTORY) {
-            Executor executor = new Executor(cliParser.getTargetDir(), cliParser.getAndroidJAR());
+            Executor executor = new Executor(cliParser.getSourceDir(), cliParser.getAndroidJAR());
+            executor.setOutDir(cliParser.getTargetDir());
             executor.runPairAnalyse();
         }
     }
