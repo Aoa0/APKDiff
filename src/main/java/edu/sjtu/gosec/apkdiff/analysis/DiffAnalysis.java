@@ -145,6 +145,7 @@ public class DiffAnalysis {
         }
         return sign;
     }
+
     private void buildPackageMatch() {
         this.packageMatches = new LinkedHashMap<>();
         HierarchyNode i1 = srcTree.root;
@@ -191,4 +192,6 @@ public class DiffAnalysis {
     public Map<String, String> getResult() {
         return matches;
     }
+
+    public Graph<String, DefaultEdge> getPotentialMatches() {return potentialMatches;}
 }

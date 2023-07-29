@@ -17,7 +17,7 @@ public class CLIParser {
         static final String ANDROID_SDK_PATH_L = "android-sdk";
         static final String ANALYSE_APK_DIR = "d";
         static final String ANALYSE_APK_PAIR = "p";
-        static final String ANALYSE_APK_PAIR_RESULT_DIR = "o";
+        static final String ANALYSE_RESULT_DIR = "o";
     }
 
     public CLIParser(String[] args) {
@@ -46,9 +46,9 @@ public class CLIParser {
                 .numberOfArgs(2)
                 .desc("analyse a pair of apks")
                 .build();
-        Option resultDir = Option.builder(CLIArgs.ANALYSE_APK_PAIR_RESULT_DIR)
+        Option resultDir = Option.builder(CLIArgs.ANALYSE_RESULT_DIR)
                 .argName("analyse_result_dir")
-                .required(false)
+                .required(true)
                 .hasArg()
                 .desc("where the results are put")
                 .build();
@@ -93,19 +93,20 @@ public class CLIParser {
                 else
                     sourceDir = dir;
                 analyseOption = AnalyseOption.DIRECTORY;
-                if (cmd.hasOption(CLIArgs.ANALYSE_APK_PAIR_RESULT_DIR)) {
-                    String outdir = cmd.getOptionValue(CLIArgs.ANALYSE_APK_PAIR_RESULT_DIR);
-                    if (!Utils.validateDirectory((outdir)))
-                        die("outdir path does not exist ot it is not a directory: " + outdir);
-                    else
-                        targetDir = outdir;
-                }
             } else if (cmd.hasOption(CLIArgs.ANALYSE_APK_PAIR)) {
                 analyseOption = AnalyseOption.PAIR;
                 sourceAPK = cmd.getOptionValues(CLIArgs.ANALYSE_APK_PAIR)[0];
                 targetAPK = cmd.getOptionValues(CLIArgs.ANALYSE_APK_PAIR)[1];
             } else {
                 usage();
+            }
+
+            if (cmd.hasOption(CLIArgs.ANALYSE_RESULT_DIR)) {
+                String outdir = cmd.getOptionValue(CLIArgs.ANALYSE_RESULT_DIR);
+                if (!Utils.validateDirectory((outdir)))
+                    die("outdir path does not exist ot it is not a directory: " + outdir);
+                else
+                    targetDir = outdir;
             }
 
         } catch (ParseException e) {

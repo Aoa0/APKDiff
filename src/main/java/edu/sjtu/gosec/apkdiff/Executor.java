@@ -2,10 +2,11 @@ package edu.sjtu.gosec.apkdiff;
 
 import edu.sjtu.gosec.apkdiff.analysis.DiffAnalysis;
 import edu.sjtu.gosec.apkdiff.profile.AppProfile;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlpull.v1.XmlPullParserException;
-import soot.PackManager;
 import soot.Scene;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.options.Options;
@@ -31,8 +32,8 @@ public class Executor {
     public Executor(String source, String target, String androidJar) {
         this.source = source;
         this.target = target;
-        this.sourceName = source.split("/")[0];
-        this.targetName = target.split("/")[0];
+        this.sourceName = source.split("___")[1].replace(".apk", "");
+        this.targetName = target.split("___")[1].replace(".apk", "");
         this.androidJar = androidJar;
         this.sourceProfile = getAppProfile(source, androidJar);
         this.targetProfile = getAppProfile(target, androidJar);
@@ -43,22 +44,62 @@ public class Executor {
         this.androidJar = androidJar;
     }
 
-    public void run() {
+    private void run() {
         logger.info("Diffing: " + sourceName + "  " + targetName);
         DiffAnalysis analysis = new DiffAnalysis(sourceProfile, targetProfile);
         analysis.diff();
         writeMatchesToFile(analysis.getResult(), sourceName+"_vs_"+targetName);
+        writePotentialMatchesToFile(analysis.getPotentialMatches(), sourceName+"_vs_"+targetName);
     }
 
     public void runPairAnalyse() {
+        String apkName = this.sourceProfile.getPackageName();
+        this.outDir = outDir + "/" + apkName;
+        checkAndMake(outDir);
+        run();
+    }
+
+    private ArrayList<String> getApkList() {
         File directory = new File(dir);
         ArrayList<String> apks = new ArrayList<>(Arrays.asList(Objects.requireNonNull(directory.list())));
-        logger.info(apks.size() + "apks need to be analysed");
         apks.sort((str1, str2) -> {
             int id1 = Integer.parseInt(str1.split("___")[1].replace(".apk", ""));
             int id2 = Integer.parseInt(str2.split("___")[1].replace(".apk", ""));
             return id1 - id2;
         });
+        return apks;
+    }
+
+    public void runDirAnalyse() {
+        ArrayList<String> apks = getApkList();
+
+        if(config.specialMode) {
+            this.sourceName = apks.get(0);
+            this.outDir = outDir + "/" + sourceName.split("___")[0];
+            checkAndMake(outDir);
+            this.sourceName = sourceName.split("___")[1].replace(".apk", "");
+            this.source = dir + "/" + apks.get(0);
+            this.sourceProfile = getAppProfile(source, androidJar);
+            this.targetName = apks.get(1);
+            this.targetName = targetName.split("___")[1].replace(".apk", "");
+            this.target = dir + "/" + apks.get(0);
+            this.targetProfile = getAppProfile(target, androidJar);
+            run();
+
+            this.sourceName = apks.get(apks.size()-2);
+            this.sourceName = sourceName.split("___")[1].replace(".apk", "");
+            this.source = dir + "/" + apks.get(0);
+            this.sourceProfile = getAppProfile(source, androidJar);
+            this.targetName = apks.get(apks.size()-1);
+            this.targetName = targetName.split("___")[1].replace(".apk", "");
+            this.target = dir + "/" + apks.get(0);
+            this.targetProfile = getAppProfile(target, androidJar);
+            run();
+
+            return;
+        }
+
+        logger.info(apks.size() + "apks need to be analysed");
         this.time = System.currentTimeMillis();
         this.targetName = apks.get(0);
         this.outDir = outDir + "/" + targetName.split("___")[0];
@@ -76,7 +117,7 @@ public class Executor {
             this.targetName = apk.split("___")[1].replace(".apk", "");;
             this.targetProfile = getAppProfile(target, androidJar);
             run();
-            recordTime();
+            // recordTime();
         }
     }
 
@@ -100,7 +141,6 @@ public class Executor {
     public AppProfile getAppProfile(String apkPath, String androidJarPath) {
         //ToDo: need timeout check
         setupSoot(apkPath, androidJarPath);
-        PackManager.v().runPacks();
         try (ProcessManifest manifest = new ProcessManifest(apkPath)) {
             //app.hierarchyTree.show(app.hierarchyTree.root, 0);
             return new AppProfile(apkPath, manifest);
@@ -110,11 +150,29 @@ public class Executor {
     }
 
     public void writeMatchesToFile(Map<String, String> matches, String tar) {
+        String filename = outDir+"/"+tar+".Matches";
         TreeMap<String, String> sortedMatches = new TreeMap<>(matches);
-        try (PrintWriter out = new PrintWriter(outDir+"/"+tar+".txt")) {
+        try (PrintWriter out = new PrintWriter(filename)) {
+            System.out.println(filename);
             for (Map.Entry<String, String> entry : sortedMatches.entrySet()) {
                 out.write(entry.getKey() + " -> " + entry.getValue() + "\n");
             }
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void writePotentialMatchesToFile(Graph<String, DefaultEdge> matches, String tar) {
+        String filename = outDir+"/"+tar+".PotentialMatches";
+        try (PrintWriter out = new PrintWriter(filename)) {
+            System.out.println(tar);
+            for(DefaultEdge edge:matches.edgeSet()) {
+                String srcName = matches.getEdgeSource(edge);
+                String tarName = matches.getEdgeTarget(edge);
+
+                out.write(srcName + " -> " + tarName + "\n");
+            }
+
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
