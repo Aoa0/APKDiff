@@ -48,6 +48,7 @@ public class Executor {
         logger.info("Diffing: " + sourceName + "  " + targetName);
         DiffAnalysis analysis = new DiffAnalysis(sourceProfile, targetProfile);
         analysis.diff();
+        logger.info("APKDiff Analysis Done");
         writeMatchesToFile(analysis.getResult(), sourceName+"_vs_"+targetName);
         writePotentialMatchesToFile(analysis.getPotentialMatches(), sourceName+"_vs_"+targetName);
     }
