@@ -1,11 +1,11 @@
-package edu.sjtu.gosec.apkdiff.analysis;
+package com.apkdiff.analysis;
 
-import edu.sjtu.gosec.apkdiff.Utils;
-import edu.sjtu.gosec.apkdiff.profile.AppProfile;
-import edu.sjtu.gosec.apkdiff.profile.ClassProfile;
-import edu.sjtu.gosec.apkdiff.profile.MethodProfile;
-import edu.sjtu.gosec.apkdiff.util.HierarchyNode;
-import edu.sjtu.gosec.apkdiff.util.HierarchyTree;
+import com.apkdiff.Utils;
+import com.apkdiff.profile.AppProfile;
+import com.apkdiff.profile.ClassProfile;
+import com.apkdiff.profile.MethodProfile;
+import com.apkdiff.util.HierarchyNode;
+import com.apkdiff.util.HierarchyTree;
 
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;

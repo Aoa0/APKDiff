@@ -1,6 +1,6 @@
-package edu.sjtu.gosec.apkdiff.analysis;
+package com.apkdiff.analysis;
 
-import edu.sjtu.gosec.apkdiff.profile.ClassProfile;
+import com.apkdiff.profile.ClassProfile;
 
 import java.util.Objects;
 

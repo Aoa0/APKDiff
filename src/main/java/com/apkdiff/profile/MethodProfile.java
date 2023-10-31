@@ -1,6 +1,6 @@
-package edu.sjtu.gosec.apkdiff.profile;
+package com.apkdiff.profile;
 
-import edu.sjtu.gosec.apkdiff.Utils;
+import com.apkdiff.Utils;
 import soot.*;
 import soot.jimple.StringConstant;
 import soot.jimple.internal.ImmediateBox;

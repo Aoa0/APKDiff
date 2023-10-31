@@ -1,7 +1,7 @@
-package edu.sjtu.gosec.apkdiff;
+package com.apkdiff;
 
-import edu.sjtu.gosec.apkdiff.analysis.DiffAnalysis;
-import edu.sjtu.gosec.apkdiff.profile.AppProfile;
+import com.apkdiff.analysis.DiffAnalysis;
+import com.apkdiff.profile.AppProfile;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.slf4j.Logger;
@@ -13,8 +13,6 @@ import soot.options.Options;
 
 import java.io.*;
 import java.util.*;
-
-import static edu.sjtu.gosec.apkdiff.Utils.checkAndMake;
 
 public class Executor {
     private String source;
@@ -56,7 +54,7 @@ public class Executor {
     public void runPairAnalyse() {
         String apkName = this.sourceProfile.getPackageName();
         this.outDir = outDir + "/" + apkName;
-        checkAndMake(outDir);
+        Utils.checkAndMake(outDir);
         run();
     }
 
@@ -77,7 +75,7 @@ public class Executor {
         if(config.specialMode) {
             this.sourceName = apks.get(0);
             this.outDir = outDir + "/" + sourceName.split("___")[0];
-            checkAndMake(outDir);
+            Utils.checkAndMake(outDir);
             this.sourceName = sourceName.split("___")[1].replace(".apk", "");
             this.source = dir + "/" + apks.get(0);
             this.sourceProfile = getAppProfile(source, androidJar);
@@ -104,7 +102,7 @@ public class Executor {
         this.time = System.currentTimeMillis();
         this.targetName = apks.get(0);
         this.outDir = outDir + "/" + targetName.split("___")[0];
-        checkAndMake(outDir);
+        Utils.checkAndMake(outDir);
         this.targetName = targetName.split("___")[1].replace(".apk", "");
         this.target = dir + "/" + apks.get(0);
         this.targetProfile = getAppProfile(target, androidJar);

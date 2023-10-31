@@ -1,4 +1,4 @@
-package edu.sjtu.gosec.apkdiff.util;
+package com.apkdiff.util;
 
 public enum AnalyseOption {
     PAIR,

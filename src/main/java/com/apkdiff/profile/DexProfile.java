@@ -1,9 +1,7 @@
-package edu.sjtu.gosec.apkdiff.profile;
+package com.apkdiff.profile;
 
-import edu.sjtu.gosec.apkdiff.Utils;
-import org.checkerframework.checker.units.qual.A;
+import com.apkdiff.Utils;
 import org.jf.dexlib2.DexFileFactory;
-import org.jf.dexlib2.Opcode;
 import org.jf.dexlib2.Opcodes;
 import org.jf.dexlib2.dexbacked.DexBackedDexFile;
 import org.jf.dexlib2.iface.ClassDef;

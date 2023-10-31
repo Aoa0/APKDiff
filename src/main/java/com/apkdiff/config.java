@@ -1,4 +1,4 @@
-package edu.sjtu.gosec.apkdiff;
+package com.apkdiff;
 
 public class config {
     // special mode is to only analyse the latest and the oldest version

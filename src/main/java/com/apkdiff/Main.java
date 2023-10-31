@@ -1,6 +1,6 @@
-package edu.sjtu.gosec.apkdiff;
+package com.apkdiff;
 
-import edu.sjtu.gosec.apkdiff.util.AnalyseOption;
+import com.apkdiff.util.AnalyseOption;
 
 public class Main {
     public static void main(String[] args) {

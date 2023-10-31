@@ -1,6 +1,6 @@
-package edu.sjtu.gosec.apkdiff.util;
+package com.apkdiff.util;
 
-import edu.sjtu.gosec.apkdiff.profile.ClassProfile;
+import com.apkdiff.profile.ClassProfile;
 
 import java.util.ArrayList;
 import java.util.HashMap;

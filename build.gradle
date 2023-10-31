@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'edu.sjtu.gosec'
+group 'com.apkdiff'
 version '1.0-SNAPSHOT'
 
 repositories {
@@ -33,7 +33,7 @@ jar {
     duplicatesStrategy = 'include'
 
     manifest {
-        attributes ('Main-Class': 'edu.sjtu.gosec.apkdiff.Main')
+        attributes ('Main-Class': 'com.apkdiff.Main')
     }
 
     from {

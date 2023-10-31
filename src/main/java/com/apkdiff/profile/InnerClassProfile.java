@@ -1,4 +1,4 @@
-package edu.sjtu.gosec.apkdiff.profile;
+package com.apkdiff.profile;
 
 import soot.SootClass;
 

@@ -1,8 +1,7 @@
-package edu.sjtu.gosec.apkdiff.util;
+package com.apkdiff.util;
 
-import edu.sjtu.gosec.apkdiff.analysis.ObfuscationAnalysis;
-import edu.sjtu.gosec.apkdiff.profile.ClassProfile;
-import soot.SootClass;
+import com.apkdiff.analysis.ObfuscationAnalysis;
+import com.apkdiff.profile.ClassProfile;
 
 import java.util.ArrayList;
 import java.util.List;

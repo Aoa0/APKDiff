@@ -1,4 +1,4 @@
-package edu.sjtu.gosec.apkdiff.util;
+package com.apkdiff.util;
 
 public class Node<T> {
     private T element;

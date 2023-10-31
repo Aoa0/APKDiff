@@ -1,14 +1,12 @@
-package edu.sjtu.gosec.apkdiff.profile;
+package com.apkdiff.profile;
 
+import com.apkdiff.Utils;
 import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.tagkit.AnnotationTag;
 import soot.tagkit.Tag;
 import soot.tagkit.VisibilityAnnotationTag;
-import soot.util.Chain;
-
-import edu.sjtu.gosec.apkdiff.Utils;
 
 import java.util.*;
 

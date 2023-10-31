@@ -1,4 +1,4 @@
-package edu.sjtu.gosec.apkdiff.analysis;
+package com.apkdiff.analysis;
 
 import java.util.Arrays;
 import java.util.HashSet;

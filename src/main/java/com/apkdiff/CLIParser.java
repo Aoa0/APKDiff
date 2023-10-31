@@ -1,7 +1,7 @@
-package edu.sjtu.gosec.apkdiff;
+package com.apkdiff;
 
 import org.apache.commons.cli.*;
-import edu.sjtu.gosec.apkdiff.util.AnalyseOption;
+import com.apkdiff.util.AnalyseOption;
 
 public class CLIParser {
     private AnalyseOption analyseOption;

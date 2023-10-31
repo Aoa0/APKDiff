@@ -1,6 +1,7 @@
-package edu.sjtu.gosec.apkdiff.profile;
+package com.apkdiff.profile;
 
-import edu.sjtu.gosec.apkdiff.Utils;
+import com.apkdiff.Utils;
+import com.apkdiff.util.HierarchyTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import soot.Modifier;
