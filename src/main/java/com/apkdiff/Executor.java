@@ -30,8 +30,8 @@ public class Executor {
     public Executor(String source, String target, String androidJar) {
         this.source = source;
         this.target = target;
-        this.sourceName = source.split("___")[1].replace(".apk", "");
-        this.targetName = target.split("___")[1].replace(".apk", "");
+        this.sourceName = source.split("/")[source.split("/").length - 1].replace(".apk", "");
+        this.targetName = target.split("/")[source.split("/").length - 1].replace(".apk", "");
         this.androidJar = androidJar;
         this.sourceProfile = getAppProfile(source, androidJar);
         this.targetProfile = getAppProfile(target, androidJar);

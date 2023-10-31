@@ -10,7 +10,7 @@ import soot.Scene;
 import soot.SootClass;
 import soot.jimple.infoflow.android.manifest.ProcessManifest;
 import soot.util.Chain;
-import edu.sjtu.gosec.apkdiff.util.*;
+import com.apkdiff.util.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

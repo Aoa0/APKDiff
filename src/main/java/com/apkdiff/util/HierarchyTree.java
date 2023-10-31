@@ -48,14 +48,14 @@ public class HierarchyTree {
         root.addClass(clz);
     }
 
-    public void Show() {
-        show(root, 0);
-    }
-
-    private void show(HierarchyNode node, int level) {
-        for (Map.Entry<String, HierarchyNode> entry : node.getChild().entrySet()) {
-            System.out.println(" ".repeat(level) + "-" + entry.getKey());
-            show(entry.getValue(), level + 1);
-        }
-    }
+//    public void Show() {
+//        show(root, 0);
+//    }
+//
+//    private void show(HierarchyNode node, int level) {
+//        for (Map.Entry<String, HierarchyNode> entry : node.getChild().entrySet()) {
+//            System.out.println(" ".repeat(level) + "-" + entry.getKey());
+//            show(entry.getValue(), level + 1);
+//        }
+//    }
 }
